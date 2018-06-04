@@ -68,7 +68,6 @@ public class EventsProccessorService {
 		// 7. Shutdown
 		this.shutdownDB();
 
-
 	} // main method ends
 
 	// ================================ data access object helper methods ==============================
@@ -171,28 +170,6 @@ public class EventsProccessorService {
 		return eventsList;
 	}
 
-	//	private ArrayList<LogEvent> readInJson2(String fileName) throws IOException {
-	//		ArrayList<LogEvent> eventsList = new ArrayList<LogEvent>();
-	//		ObjectMapper mapper = new ObjectMapper();
-	//		JsonFactory factory = new JsonFactory();
-	//		factory.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-	//		JsonParser jp = factory.createParser((DataInput) FileUtils.lineIterator(new File(fileName), "UTF-8"));
-	//		
-	//		log.debug(" Printing entire file .....");
-	//		LineIterator it = FileUtils.lineIterator(new File(fileName), "UTF-8");
-	//		try {
-	//		    while (it.hasNext()) {
-	//		        LogEvent event = mapper.readValue( jp, LogEvent.class);
-	//				log.debug("Event = "+event);
-	//				eventsList.add(event);
-	//		    }
-	//		} finally {
-	//		    LineIterator.closeQuietly(it);
-	//		}
-	//		
-	//		return eventsList;
-	//	}
-
 	/** calculate Events Duration method
 	 *  Processes log events list looking for
 	 *  events longer than 4 ms
@@ -242,7 +219,6 @@ public class EventsProccessorService {
 			}
 		}
 	}
-
 
 
 }  

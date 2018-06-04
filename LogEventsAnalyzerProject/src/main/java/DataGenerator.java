@@ -1,3 +1,10 @@
+/**
+ * JSON data to file  generator
+ * 
+ * @author Sebastian Wizert
+ *
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;

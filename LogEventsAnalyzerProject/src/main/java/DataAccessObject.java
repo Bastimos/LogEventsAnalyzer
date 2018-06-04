@@ -1,3 +1,10 @@
+/**
+ * Data Access Object
+ * 
+ * @author Sebastian Wizert
+ *
+ */
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -68,7 +75,7 @@ public class DataAccessObject {
 			int i = st.executeUpdate(expression);  
 
 			if (i == -1) {
-				System.out.println("db error : " + expression);
+				EventsProccessorService.log.error("Exception in database due to query = "+expression);
 			}
 
 			st.close();
