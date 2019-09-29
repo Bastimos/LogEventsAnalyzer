@@ -7,6 +7,7 @@ public class LogEvent {
 	String type;
 	String host;
 	Long timestamp;
+	Long duration;
 	
 	public String getId() {
 		return id;
@@ -38,10 +39,16 @@ public class LogEvent {
 	public void setTimestamp(Long timestamp) {
 		this.timestamp = timestamp;
 	}
+	public Long getDuration() {
+		return duration;
+	}
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
 	@Override
 	public String toString() {
 		return "NormalLogEvent [id=" + id + ", state=" + state + ", type=" + type + ", host=" + host + ", timestamp="
-				+ timestamp + "]";
+				+ timestamp + ", duration=" + duration+"]";
 	}
 
 }

@@ -8,29 +8,23 @@ package demo;
  *  - Gradle
  */
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class EventsProccessorService {
 
 	private DataAccessObject dao = null;
-	private static ArrayList<LogEvent> eventsList = null;
+	private ArrayList<LogEvent> eventsList = null;
+	private List<Set<LogEvent>> resultValues = null;
 	private final org.apache.log4j.Logger log = Logger.getLogger(EventsProccessorService.class);
-
+	
 	/**
 	 * 1.initialize application object with specified database parameter
 	 * 2.Removes database residue from possible previous runs
@@ -46,6 +40,8 @@ public class EventsProccessorService {
 	public EventsProccessorService( String dbFileName, String[] args ) {
 		//configure internal log4j logger
 		PropertyConfigurator.configure("log4j.properties");
+		float start, end, executionTime;
+		start = new Timestamp(System.currentTimeMillis()).getTime();
 
 		// 1.Initialize DB
 		this.dao = new DataAccessObject( dbFileName );
@@ -62,12 +58,18 @@ public class EventsProccessorService {
 		// 5.process JSON
 		this.calculateEventsDuration(eventsList);
 		// |
-		// 6. Display result from data base
+		// 6
+		this.insertResultIntoToDb(resultValues);
+		// |
+		// 7. Display result from data base
 		this.showResultFromDB();
 		// |
-		// 7. Shutdown
+		// 8. Shutdown
 		this.shutdownDB();
-
+		
+		end = new Timestamp(System.currentTimeMillis()).getTime();
+		executionTime = end - start;
+		log.info("Finished in "+executionTime);
 	} // main method ends
 
 	// ================================ data access object helper methods ==============================
@@ -124,72 +126,36 @@ public class EventsProccessorService {
 		try {
 			if( args.length <= 0 || Arrays.toString(args).length() <= 3 ) {
 				log.info("No arguments detected - Loading default test file ... ");
-				eventsList = readInJson("resources/TestData.json");
+				eventsList = JsonReader.readInJson("resources/TestData.json");
 				log.info("TestData file loaded successfuly ... ");
 			} else {
 				log.info("Arguments detected - Loading file ... ");
-				eventsList = readInJson( args[0] );
-				log.info(args+" file loaded successfuly ... ");
+				eventsList = JsonReader.readInJson( args[0] );
+				log.info(args[0]+" file loaded successfuly ... ");
 			}
 		} catch ( IOException e ) {
-			log.error("Exception reading in JSON file - "+e);
+			log.error("Exception reading in JSON file ", e);
 		}
 
-	}
-
-	/** Read In Json - method
-	 * 
-	 * Reads JSON file using faster xml parsing
-	 * and Event object model
-	 * Allows missing quotations around field names
-	 * Prints to the console entire file
-	 * Loads Event list with objects originated in our JSON file
-	 * 
-	 * @param path - path to the JSON file
-	 * @return ArrayList<LogEvent> - list of all log events
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws ParseException
-	 */
-	@SuppressWarnings("deprecation")
-	private ArrayList<LogEvent> readInJson(String path) throws FileNotFoundException, IOException {
-		ArrayList<LogEvent> eventsList = new ArrayList<LogEvent>();
-		ObjectMapper mapper = new ObjectMapper();
-		JsonFactory factory = new JsonFactory();
-		factory.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-		JsonParser jp = factory.createJsonParser(new FileInputStream(path));
-
-		log.debug(" Printing entire file ...");
-		while(jp.nextToken() == JsonToken.START_OBJECT) {
-			LogEvent event = mapper.readValue(jp, LogEvent.class);
-			log.debug("Event = "+event);
-			eventsList.add(event);
-		}
-
-		return eventsList;
 	}
 
 	/** calculate Events Duration method
 	 *  Processes log events list looking for
 	 *  events longer than 4 ms
-	 *  Converts to map of events sorted by id
-	 *  than iterates triggering helper method
 	 * 
 	 * @param eventsList
 	 */
 	private void calculateEventsDuration(ArrayList<LogEvent> eventsList) {
 
 		log.info(" Proccessing file with total of - "+eventsList.size()+" - log elements, looking for events longer than 4ms ....");
-		//convert to map by id
-		Map<String,Set<LogEvent>> eventsByIdMap = eventsList.parallelStream()
-				.collect(Collectors.groupingBy(LogEvent::getId, Collectors.toSet()));
-		synchronized (eventsByIdMap) {
-			//iterate map
-			eventsByIdMap.forEach((String key, Set<LogEvent> eventsSet) -> helper(key, eventsSet) );
-		}
-	}
+	 
+		resultValues = eventsList.parallelStream()
+			.collect(Collectors.groupingBy(LogEvent::getId, Collectors.toSet()))
+			.values().parallelStream().filter(x -> helper(x)).collect(Collectors.toList());
 
-	private void helper(String key, Set<LogEvent> eventsSet ) {
+	}
+	
+	private boolean helper(Set<LogEvent> eventsSet ) {
 		long startTime ,finishTime ,duration = 0;
 
 
@@ -201,24 +167,44 @@ public class EventsProccessorService {
 						finishTime = logEventFinish.getTimestamp();
 
 						duration = finishTime - startTime;
-
+						logEventFinish.setDuration(duration);
+						log.debug("Proccesed Log Element ID = "+logEventFinish.getId()+" - startTime = "+
+								startTime+" - finishTime = "+finishTime + " Event duration = "+duration);
 						if(duration > 4) {
-
-							dao.update(" INSERT INTO long_events_table(id,duration,type,host,alert) VALUES ("
-									+ "'" + logEventFinish.getId() + "', "
-									+ duration+", "
-									+ "'"+logEventFinish.getType()+"',"
-									+ " '"+logEventFinish.getHost()+"',"
-									+ " 1)");
-
-							log.debug("Proccesed Log Element ID = "+logEventFinish.getId()+" - startTime = "+startTime+" - finishTime = "+finishTime + " Event duration = "+duration);
+							return true;
 						}
 					}
 				}
 			}
 		}
+		return false;
 	}
+	
+	/**
+	 * Based on inputing list of sets of LogEvent objects
+	 * Creates a query String for execution further in data access object
+	 * 
+	 * @param logEvents
+	 */
+	private void insertResultIntoToDb (List<Set<LogEvent>> logEvents) {
 
-
+		StringBuilder sb = new StringBuilder();
+		sb.append(" INSERT INTO long_events_table(id,duration,type,host,alert) VALUES ");
+		logEvents.stream().forEach(logEventSet -> {
+			logEventSet.stream().forEach(logEvent -> {
+				sb.append("('" + logEvent.getId() + "', "
+				+ logEvent.getDuration()+", "
+				+ "'"+logEvent.getType()+"',"
+				+ " '"+logEvent.getHost()+"',"
+				+ " 1),");
+				
+			});
+		});
+		
+		String query = sb.toString();
+		query = query.substring(0, query.length()-1);
+		dao.update(query);
+		
+	}
 }  
 

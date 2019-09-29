@@ -96,15 +96,17 @@ public class DataAccessObject {
 		try {
 			meta = rs.getMetaData();
 			int colmax = meta.getColumnCount();
-			int i;
+			
 			Object o = null;
 			StringBuilder sb = new StringBuilder();
 
-			for (; rs.next(); ) {
+			for (int i; rs.next(); ) {
 				for (i = 1; i < colmax; ++i) {
 					o = rs.getObject(i );  
+					if (o == null) {
+						o = "null";
+					}
 					sb.append(meta.getColumnName(i)+" - "+o.toString() + ", ");
-					
 				}
 				log.info(sb.toString()+" - Added to database");
 				sb.delete(0, sb.length());
