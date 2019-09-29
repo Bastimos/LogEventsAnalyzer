@@ -28,7 +28,7 @@ public class DataGenerator {
 		try {
 			generateData( limit , fileName );
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception generating data ...", e);
 		}
 		log.info("Generated mock data file worth of = "+readableFileSize( new File(fileName).length()) );
 	}

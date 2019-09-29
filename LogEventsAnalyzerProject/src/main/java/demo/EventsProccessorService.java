@@ -132,7 +132,6 @@ public class EventsProccessorService {
 				log.info(args+" file loaded successfuly ... ");
 			}
 		} catch ( IOException e ) {
-			e.printStackTrace();
 			log.error("Exception reading in JSON file - "+e);
 		}
 
@@ -203,7 +202,7 @@ public class EventsProccessorService {
 
 						duration = finishTime - startTime;
 
-						if(duration >= 4) {
+						if(duration > 4) {
 
 							dao.update(" INSERT INTO long_events_table(id,duration,type,host,alert) VALUES ("
 									+ "'" + logEventFinish.getId() + "', "
@@ -212,7 +211,7 @@ public class EventsProccessorService {
 									+ " '"+logEventFinish.getHost()+"',"
 									+ " 1)");
 
-							log.debug("Proccesed Log Element ID = "+logEventFinish.getId()+" - startTime = "+startTime+" - finishTime = "+finishTime + "Event duration = "+duration);
+							log.debug("Proccesed Log Element ID = "+logEventFinish.getId()+" - startTime = "+startTime+" - finishTime = "+finishTime + " Event duration = "+duration);
 						}
 					}
 				}

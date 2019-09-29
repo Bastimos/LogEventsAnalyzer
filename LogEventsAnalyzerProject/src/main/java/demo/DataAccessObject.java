@@ -27,7 +27,7 @@ public class DataAccessObject {
 		try {
 			Class.forName("org.hsqldb.jdbcDriver");
 		} catch (ClassNotFoundException e) {
-			log.error("Exception loading database class driver ... "+e);
+			log.error("Exception loading database class driver ... ", e);
 		}
 
 		// connect to the database.   
@@ -37,7 +37,7 @@ public class DataAccessObject {
 					"sa",                     // user name
 					"");					// password
 		} catch (SQLException e) {
-			log.error("Exception connecting to database ... "+e);
+			log.error("Exception connecting to database ... ", e);
 		}       
 		log.info("Events Processor App Constructor - Data Access Object - initialized successfuly with DB file name = "+db_file_name_prefix);
 	}
@@ -51,7 +51,7 @@ public class DataAccessObject {
 			st.execute("SHUTDOWN");
 			conn.close();
 		} catch (SQLException e) {
-			log.error("Exception shuting down database ... "+e);
+			log.error("Exception shuting down database ... ",e);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class DataAccessObject {
 			dump(rs);
 			st.close(); 
 		} catch (SQLException e) {
-			log.error("Exception in database due to query = "+expression+"\n"+e);
+			log.error("Exception in database due to query = "+expression, e);
 		}   
 		   
 	}
@@ -85,7 +85,7 @@ public class DataAccessObject {
 
 			st.close();
 		} catch (SQLException e) {
-			log.error("Exception in database due to update = "+expression+"\n"+e);
+			log.error("Exception in database due to update = "+expression, e);
 		}  
 
 	} 
@@ -101,16 +101,16 @@ public class DataAccessObject {
 			StringBuilder sb = new StringBuilder();
 
 			for (; rs.next(); ) {
-				for (i = 0; i < colmax; ++i) {
-					o = rs.getObject(i + 1);  
-					sb.append(o.toString() + " ");
+				for (i = 1; i < colmax; ++i) {
+					o = rs.getObject(i );  
+					sb.append(meta.getColumnName(i)+" - "+o.toString() + " ");
 					
 				}
 				log.info(sb.toString()+" - Added to database");
 				sb.delete(0, sb.length());
 			}
 		} catch (SQLException e) {
-			log.error("Exception in database while dumping ResultSet = "+rs+"\n"+e);
+			log.error("Exception in database while dumping ResultSet = "+rs, e);
 		}
 		
 	}                                      
