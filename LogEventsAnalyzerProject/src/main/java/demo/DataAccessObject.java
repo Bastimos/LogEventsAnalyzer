@@ -1,3 +1,4 @@
+package demo;
 /**
  * Data Access Object
  * 
@@ -12,7 +13,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.log4j.Logger;
+
 public class DataAccessObject {
+	
+	private final org.apache.log4j.Logger log = Logger.getLogger(DataAccessObject.class);
 
 	private Connection conn;  
 	
@@ -22,19 +27,19 @@ public class DataAccessObject {
 		try {
 			Class.forName("org.hsqldb.jdbcDriver");
 		} catch (ClassNotFoundException e) {
-			EventsProccessorService.log.error("Exception loading database class driver ... "+e);
+			log.error("Exception loading database class driver ... "+e);
 		}
 
 		// connect to the database.   
 		try {
 			conn = DriverManager.getConnection("jdbc:hsqldb:"
 					+ db_file_name_prefix,    // filenames
-					"sa",                     // username
+					"sa",                     // user name
 					"");					// password
 		} catch (SQLException e) {
-			EventsProccessorService.log.error("Exception connecting to database ... "+e);
+			log.error("Exception connecting to database ... "+e);
 		}       
-		EventsProccessorService.log.info("Events Processor App Constructor - Data Access Object - initialized successfuly with DB file name = "+db_file_name_prefix);
+		log.info("Events Processor App Constructor - Data Access Object - initialized successfuly with DB file name = "+db_file_name_prefix);
 	}
 	
 	//============================================HSQL methods ======================================
@@ -46,7 +51,7 @@ public class DataAccessObject {
 			st.execute("SHUTDOWN");
 			conn.close();
 		} catch (SQLException e) {
-			EventsProccessorService.log.error("Exception shuting down database ... "+e);
+			log.error("Exception shuting down database ... "+e);
 		}
 	}
 
@@ -61,7 +66,7 @@ public class DataAccessObject {
 			dump(rs);
 			st.close(); 
 		} catch (SQLException e) {
-			EventsProccessorService.log.error("Exception in database due to query = "+expression+"\n"+e);
+			log.error("Exception in database due to query = "+expression+"\n"+e);
 		}   
 		   
 	}
@@ -75,17 +80,17 @@ public class DataAccessObject {
 			int i = st.executeUpdate(expression);  
 
 			if (i == -1) {
-				EventsProccessorService.log.error("Exception in database due to query = "+expression);
+				log.error("Exception in database due to query = "+expression);
 			}
 
 			st.close();
 		} catch (SQLException e) {
-			EventsProccessorService.log.error("Exception in database due to update = "+expression+"\n"+e);
+			log.error("Exception in database due to update = "+expression+"\n"+e);
 		}  
 
 	} 
 
-	public static void dump(ResultSet rs)  {
+	public void dump(ResultSet rs)  {
 
 		ResultSetMetaData meta;
 		try {
@@ -101,11 +106,11 @@ public class DataAccessObject {
 					sb.append(o.toString() + " ");
 					
 				}
-				EventsProccessorService.log.info(sb.toString()+" - Added to database");
+				log.info(sb.toString()+" - Added to database");
 				sb.delete(0, sb.length());
 			}
 		} catch (SQLException e) {
-			EventsProccessorService.log.error("Exception in database while dumping ResultSet = "+rs+"\n"+e);
+			log.error("Exception in database while dumping ResultSet = "+rs+"\n"+e);
 		}
 		
 	}                                      

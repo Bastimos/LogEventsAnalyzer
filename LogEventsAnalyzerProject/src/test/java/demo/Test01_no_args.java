@@ -1,6 +1,9 @@
+package demo;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import demo.EventsProccessorService;
 
 public class Test01_no_args {
 

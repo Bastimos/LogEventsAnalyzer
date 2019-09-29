@@ -1,3 +1,4 @@
+package demo;
 /**
  * JSON data to file  generator
  * 
@@ -11,11 +12,15 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 public class DataGenerator {
+	
+	protected final static org.apache.log4j.Logger log = Logger.getLogger( DataGenerator.class);
 
 	public DataGenerator(int limit, String fileName) {
 		super();
@@ -25,8 +30,7 @@ public class DataGenerator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("Generated mock data file worth of = "+readableFileSize( new File(fileName).length()) );
+		log.info("Generated mock data file worth of = "+readableFileSize( new File(fileName).length()) );
 	}
 
 	private void generateData(int limit, String fileName) throws IOException {
@@ -39,20 +43,20 @@ public class DataGenerator {
 		for(int i = 0; i < limit; ++i) {
 			
 			generator.writeStartObject();
-			generator.writeStringField("id", "id"+i);
+			generator.writeNumberField("id", i);
 			generator.writeStringField("state", "STARTED");
-			generator.writeStringField("host", "host"+i);
-			generator.writeStringField("type", "type"+i);
+			generator.writeStringField("host", "host_"+i);
+			generator.writeStringField("type", "type_"+i);
 			generator.writeNumberField("timestamp", new Timestamp(System.currentTimeMillis()).getTime() );
 			generator.writeEndObject();
 			
 			generator.writeRaw('\n');
 
 			generator.writeStartObject();
-			generator.writeStringField("id", "id"+i);
+			generator.writeNumberField("id", i);
 			generator.writeStringField("state", "FINISHED");
-			generator.writeStringField("host", "host"+i);
-			generator.writeStringField("type", "type"+i);
+			generator.writeStringField("host", "host_"+i);
+			generator.writeStringField("type", "type_"+i);
 			generator.writeNumberField("timestamp", new Timestamp(System.currentTimeMillis()).getTime() + (random.nextInt(9) + 1)  );
 			generator.writeEndObject();
 			generator.writeRaw('\n');

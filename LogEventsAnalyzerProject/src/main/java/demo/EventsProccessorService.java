@@ -1,3 +1,4 @@
+package demo;
 /**
  * Author : Sebastian Wizert
  * 
@@ -28,8 +29,7 @@ public class EventsProccessorService {
 
 	private DataAccessObject dao = null;
 	private static ArrayList<LogEvent> eventsList = null;
-	protected final static org.apache.log4j.Logger log = Logger.getLogger(EventsProccessorService.class);
-	
+	private final org.apache.log4j.Logger log = Logger.getLogger(EventsProccessorService.class);
 
 	/**
 	 * 1.initialize application object with specified database parameter

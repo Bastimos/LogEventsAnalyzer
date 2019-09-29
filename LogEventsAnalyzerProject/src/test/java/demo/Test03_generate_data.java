@@ -1,6 +1,9 @@
+package demo;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import demo.DataGenerator;
 
 public class Test03_generate_data {
 

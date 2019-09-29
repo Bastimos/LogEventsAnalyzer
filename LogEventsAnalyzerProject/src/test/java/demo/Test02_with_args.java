@@ -1,6 +1,9 @@
+package demo;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import demo.EventsProccessorService;
 
 public class Test02_with_args {
 
