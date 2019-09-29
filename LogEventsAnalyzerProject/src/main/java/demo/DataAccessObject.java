@@ -103,7 +103,7 @@ public class DataAccessObject {
 			for (; rs.next(); ) {
 				for (i = 1; i < colmax; ++i) {
 					o = rs.getObject(i );  
-					sb.append(meta.getColumnName(i)+" - "+o.toString() + " ");
+					sb.append(meta.getColumnName(i)+" - "+o.toString() + ", ");
 					
 				}
 				log.info(sb.toString()+" - Added to database");

@@ -60,7 +60,7 @@ public class EventsProccessorService {
 		this.readInJSONfileOrUseDefault(args);
 		// |
 		// 5.process JSON
-		this.calculateEventsDuration2(eventsList);
+		this.calculateEventsDuration(eventsList);
 		// |
 		// 6. Display result from data base
 		this.showResultFromDB();
@@ -177,7 +177,7 @@ public class EventsProccessorService {
 	 * 
 	 * @param eventsList
 	 */
-	private void calculateEventsDuration2(ArrayList<LogEvent> eventsList) {
+	private void calculateEventsDuration(ArrayList<LogEvent> eventsList) {
 
 		log.info(" Proccessing file with total of - "+eventsList.size()+" - log elements, looking for events longer than 4ms ....");
 		//convert to map by id
